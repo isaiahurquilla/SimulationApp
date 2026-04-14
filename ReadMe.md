@@ -28,4 +28,4 @@ npm install
 
 ## For running it on your Browser
 Install: npx expo install react-dom react-native-web
-Terminal; npx expo start
+Terminal: npx expo start
