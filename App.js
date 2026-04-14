@@ -1,17 +1,17 @@
-import react, { useState, useEffect, useMemo} from "react";
+import React, { useState, useEffect, useMemo} from "react";
 import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView} from "react-native";
 
-const FIRST_NAMES = [
+const FIRST_NAMES = [ // 10 common first names for name generator
   'Isaiah', 'Isaac', 'Noah', 'Emma', 'Olivia',
   'Leilani', 'Sophia', 'Elijah', 'Mia', 'Mateo',
 ];
 
-const LAST_NAMES = [
+const LAST_NAMES = [ // 10 common last names for name generator
   'Urquilla', 'Aguilar', 'Rodriguez', 'Taylor', 'Anderson',
   'Thomas', 'Jackson', 'Howard', 'Harris', 'Martin',
 ];
 
-const INITIAL_STOCKS = [
+const INITIAL_STOCKS = [ // Initial state for stock ticker
   { id: 1, symbol: 'AAPL', value: 120, previous: 120 },
   { id: 2, symbol: 'MSFT', value: 95, previous: 95 },
   { id: 3, symbol: 'TSLA', value: 140, previous: 140 },
@@ -19,15 +19,15 @@ const INITIAL_STOCKS = [
   { id: 5, symbol: 'NVDA', value: 160, previous: 160 },
 ];
 
-const INITIAL_PUMPS = [
+const INITIAL_PUMPS = [ // Initial state for oil pumps
   { id: 1, name: 'Pump 1', value: 20, direction: 1, total: 0, active: true },
   { id: 2, name: 'Pump 2', value: 45, direction: 1, total: 0, active: true },
   { id: 3, name: 'Pump 3', value: 70, direction: -1, total: 0, active: true },
   { id: 4, name: 'Pump 4', value: 90, direction: -1, total: 0, active: true },
 ];
 
-export default function App() {
-  const [screen, setScreen] = useState('dashboard');
+export default function App() { // Main application component
+  const [screen, setScreen] = useState('dashboard'); 
   const [paused, setPaused] = useState(false);
 
   const [stocks, setStocks] = useState(INITIAL_STOCKS);
@@ -36,7 +36,7 @@ export default function App() {
   const [nameHistory, setNameHistory] = useState([]);
   const [pumps, setPumps] = useState(INITIAL_PUMPS);
 
-  useEffect(() => {
+  useEffect(() => { // Stock ticker simulation effect
     if (paused) return;
 
     const stockTimer = setInterval(() => {
@@ -60,10 +60,10 @@ export default function App() {
     return () => clearInterval(stockTimer);
   }, [paused]);
 
-  useEffect(() => {
+  useEffect(() => { // Oil pump simulation effect
     if (paused) return;
 
-    const pumpTimer = setInterval(() => {
+    const pumpTimer = setInterval(() => { // Update each pump's value based on its direction and activity
       setPumps((currentPumps) =>
         currentPumps.map((pump) => {
           if (!pump.active) return pump;
@@ -92,26 +92,27 @@ export default function App() {
     return () => clearInterval(pumpTimer);
   }, [paused]);
 
-  const sortedStocks = useMemo(() => {
+  const sortedStocks = useMemo(() => { // Sort stocks by value in descending order for display
     return [...stocks].sort((a, b) => b.value - a.value);
   }, [stocks]);
 
   const topStock = sortedStocks[0];
 
-  const stockAverage = useMemo(() => {
+  const stockAverage = useMemo(() => { // Calculate the average value of all stocks
     const total = stocks.reduce((sum, stock) => sum + stock.value, 0);
     return stocks.length ? (total / stocks.length).toFixed(2) : '0.00';
   }, [stocks]);
 
-  const totalPumpOutput = useMemo(() => {
+  const totalPumpOutput = useMemo(() => { // Calculate the total output from all active pumps
+
     return pumps.reduce((sum, pump) => sum + pump.total, 0);
   }, [pumps]);
 
-  const activePumpCount = useMemo(() => {
+  const activePumpCount = useMemo(() => { // Count how many pumps are currently active
     return pumps.filter((pump) => pump.active).length;
   }, [pumps]);
 
-  const generateNames = () => {
+  const generateNames = () => { // Generate unique random names based on user input
     const requestedCount = parseInt(nameCount, 10);
 
     if (isNaN(requestedCount) || requestedCount <= 0) return;
@@ -122,7 +123,7 @@ export default function App() {
     const used = new Set();
     const newNames = [];
 
-    while (newNames.length < finalCount) {
+    while (newNames.length < finalCount) {  // Keep generating until we have the desired number of unique names
       const first =
         FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
       const last =
@@ -139,7 +140,7 @@ export default function App() {
     setNameHistory((prev) => [newNames, ...prev]);
   };
 
-  const togglePump = (id) => {
+  const togglePump = (id) => { // Toggle the active state of a pump when the user interacts with it
     setPumps((currentPumps) =>
       currentPumps.map((pump) =>
         pump.id === id ? { ...pump, active: !pump.active } : pump
@@ -147,7 +148,7 @@ export default function App() {
     );
   };
 
-  const resetAll = () => {
+  const resetAll = () => { // Reset all systems to their initial states
     setPaused(false);
     setStocks(INITIAL_STOCKS);
     setGeneratedNames([]);
@@ -157,7 +158,7 @@ export default function App() {
     setScreen('dashboard');
   };
 
-  const renderNavButton = (label, value) => (
+  const renderNavButton = (label, value) => (  // Helper function to render navigation buttons for switching between screens
     <TouchableOpacity
       key={value}
       style={[styles.navButton, screen === value && styles.activeNavButton]}
@@ -167,7 +168,7 @@ export default function App() {
     </TouchableOpacity>
   );
 
-  return (
+  return (  // Main render function for the application, displaying different sections based on the current screen state
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Lab 05 Simulation App</Text>
 
@@ -217,15 +218,15 @@ export default function App() {
           </View>
         )}
 
-        {screen === 'stocks' && (
+        {screen === 'stocks' && ( // Stock ticker screen with dynamic updates and performance indicators
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Stock Ticker</Text>
 
-            {sortedStocks.map((stock, index) => {
+            {sortedStocks.map((stock, index) => { // Calculate the change in stock value since the last update and determine if it's the top performer for styling
               const change = stock.value - stock.previous;
               const isTop = index === 0;
 
-              return (
+              return (  // Render each stock card with its symbol, current value, change, and a visual bar representing its value relative to a maximum threshold
                 <View
                   key={stock.id}
                   style={[styles.stockCard, isTop && styles.topStockCard]}
@@ -264,11 +265,11 @@ export default function App() {
           </View>
         )}
 
-        {screen === 'names' && (
+        {screen === 'names' && ( // Name generator screen with input for number of names, current results, and history of generated names
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Name Generator</Text>
 
-            <TextInput
+            <TextInput 
               style={styles.input}
               keyboardType="numeric"
               value={nameCount}
@@ -280,12 +281,12 @@ export default function App() {
               <Text style={styles.controlButtonText}>Generate Names</Text>
             </TouchableOpacity>
 
-            <View style={styles.card}>
+            <View style={styles.card}> 
               <Text style={styles.subTitle}>Current Results</Text>
               {generatedNames.length === 0 ? (
                 <Text style={styles.cardText}>No names generated yet.</Text>
               ) : (
-                generatedNames.map((name, index) => (
+                generatedNames.map((name, index) => (  // Render each generated name in the current set with its index for display
                   <Text key={`${name}-${index}`} style={styles.cardText}>
                     {index + 1}. {name}
                   </Text>
@@ -293,12 +294,12 @@ export default function App() {
               )}
             </View>
 
-            <View style={styles.card}>
+            <View style={styles.card}> 
               <Text style={styles.subTitle}>History</Text>
               {nameHistory.length === 0 ? (
                 <Text style={styles.cardText}>No history yet.</Text>
               ) : (
-                nameHistory.map((group, index) => (
+                nameHistory.map((group, index) => (  // Render each group of generated names in the history with a title indicating the generation number and the list of names generated in that set
                   <View key={index} style={styles.historyBlock}>
                     <Text style={styles.historyTitle}>Generation {index + 1}</Text>
                     {group.map((name, i) => (
@@ -313,11 +314,11 @@ export default function App() {
           </View>
         )}
 
-        {screen === 'oil' && (
+        {screen === 'oil' && (  // Oil pump monitor screen with real-time updates and status indicators
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Oil Pump Monitor</Text>
 
-            {pumps.map((pump) => (
+            {pumps.map((pump) => ( // Render each pump card with its name, current value, direction, total output, and a toggle button to activate/deactivate the pump. If the pump value is near the maximum threshold, display an alert message. Also include a visual bar representing the pump's current value relative to the maximum threshold.
               <View key={pump.id} style={styles.pumpCard}>
                 <View style={styles.stockRow}>
                   <Text style={styles.stockSymbol}>{pump.name}</Text>
